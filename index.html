@@ -82,11 +82,13 @@ footer{padding:40px 0 60px;border-top:1px solid var(--line);font-size:12px;color
 
 <section id="projetos" class="rv">
 <h2>[ PROJETOS ]</h2>
+<div class="car"><button class="nav prev" aria-label="projetos anteriores" disabled>‹</button>
 <ul class="proj">
 <li><a href="https://github.com/martinskb/nexora"><b>nexora</b><span>Controle de vendas e estoque para o pequeno comerciante.</span><em>React · Express · MySQL</em></a></li>
 <li><a href="https://github.com/martinskb/lume"><b>lume</b><span>App para criar constância nos estudos: cada tema vira um disco que gira enquanto você foca.</span><em>React · FastAPI · PWA</em></a></li>
-<li><div class="pc"><b>amana</b><span>Agendamento online para pequenos negócios, instalável no celular como app.</span><em>PWA · em desenvolvimento</em></div></li>
+<li><div class="pc"><b>amana</b><span>Agendamento online para pequenos negócios, instalável no celular como app.</span><em>React · Supabase · PWA</em></div></li>
 </ul>
+<button class="nav next" aria-label="próximos projetos">›</button></div>
 </section>
 
 <section id="tech" class="rv">
@@ -195,10 +197,51 @@ footer{padding:40px 0 60px;border-top:1px solid var(--line);font-size:12px;color
 .tk i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--w2),var(--coral));box-shadow:0 0 10px rgba(179,41,79,.6);transition:width 1.3s cubic-bezier(.2,.7,.2,1)}
 @media (max-width:480px){.tr{grid-template-columns:90px 1fr 48px;gap:8px}}
 </style>
+<style>
+.car{position:relative}
+.car .proj{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:10px 6px 24px;margin:-10px -6px -24px}
+.car .proj::-webkit-scrollbar{display:none}
+.car .proj li{flex:0 0 min(270px,78%);scroll-snap-align:start}
+.nav{display:none;position:absolute;top:50%;transform:translateY(-60%);z-index:3;width:36px;height:36px;border:1px solid var(--w2);background:rgba(10,6,7,.92);color:var(--coral);font:inherit;font-size:22px;line-height:1;cursor:pointer;transition:.2s}
+.nav:hover:not(:disabled){background:var(--w1);color:#fff;box-shadow:0 0 14px rgba(179,41,79,.6)}
+.nav:disabled{opacity:.25;cursor:default}
+.nav.prev{left:-18px}.nav.next{right:-18px}
+.car.scroll .nav{display:block}
+</style>
 <script>
 (function(){
-  var USER='martinskb',box=document.getElementById('tech-list'),note=document.getElementById('tech-note');
-  if(!box)return;
+  var USER='martinskb',list=document.querySelector('.proj'),car=document.querySelector('.car'),box=document.getElementById('tech-list'),note=document.getElementById('tech-note');
+  if(!list||!box)return;
+  var OV={
+    'nexora':{desc:'Controle de vendas e estoque para o pequeno comerciante.',tags:'React · Express · MySQL'},
+    'lume':{desc:'App para criar constância nos estudos: cada tema vira um disco que gira enquanto você foca.',tags:'React · FastAPI · PWA'},
+    'agenda-facil':{name:'amana',desc:'Agendamento online para pequenos negócios, instalável no celular como app.',tags:'React · Supabase · PWA'}
+  };
+  function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+  function card(r){
+    var o=OV[r.name]||{},li=el('li'),a=el(r.url?'a':'div',r.url?null:'pc');
+    if(r.url)a.href=r.url;
+    a.appendChild(el('b',null,o.name||r.name));
+    a.appendChild(el('span',null,o.desc||r.description||'Em construção.'));
+    var tags=o.tags||(r.topics||[]).slice(0,3).join(' · ')||r.language||'';
+    if(tags)a.appendChild(el('em',null,tags));
+    li.appendChild(a);return li;
+  }
+  function sync(){
+    car.classList.toggle('scroll',list.scrollWidth>list.clientWidth+4);
+    car.querySelector('.prev').disabled=list.scrollLeft<4;
+    car.querySelector('.next').disabled=list.scrollLeft+list.clientWidth>=list.scrollWidth-4;
+  }
+  function step(d){var li=list.querySelector('li');list.scrollBy({left:d*((li?li.offsetWidth:260)+16),behavior:'smooth'})}
+  car.querySelector('.prev').addEventListener('click',function(){step(-1)});
+  car.querySelector('.next').addEventListener('click',function(){step(1)});
+  list.addEventListener('scroll',sync);addEventListener('resize',sync);
+  function cards(repos){
+    var seen={};list.innerHTML='';
+    repos.forEach(function(r){seen[r.name]=1;list.appendChild(card(r))});
+    Object.keys(OV).forEach(function(k){if(!seen[k])list.appendChild(card({name:k,url:null}))});
+    list.scrollLeft=0;sync();
+  }
   function render(tot){
     var keys=Object.keys(tot).sort(function(a,b){return tot[b]-tot[a]});
     var sum=keys.reduce(function(s,k){return s+tot[k]},0);
@@ -210,24 +253,26 @@ footer{padding:40px 0 60px;border-top:1px solid var(--line);font-size:12px;color
     requestAnimationFrame(function(){requestAnimationFrame(function(){
       [].forEach.call(box.querySelectorAll('i'),function(i){i.style.width=i.getAttribute('data-w')+'%'});
     })});
-    note.textContent='linguagens dos projetos públicos do GitHub, pela quantidade de código.';
+    note.textContent='projetos e linguagens vêm do GitHub (repositórios públicos) e se atualizam sozinhos.';
   }
-  function cached(){try{return JSON.parse(localStorage.getItem('tech2')||'null')}catch(e){return null}}
-  var c=cached();
-  if(c&&Date.now()-c.t<3600000){render(c.d);return}
-  fetch('https://api.github.com/users/'+USER+'/repos?per_page=100')
+  function apply(d){cards(d.repos);render(d.tot)}
+  sync();
+  var c=null;try{c=JSON.parse(localStorage.getItem('site3')||'null')}catch(e){}
+  if(c&&Date.now()-c.t<3600000){apply(c);return}
+  fetch('https://api.github.com/users/'+USER+'/repos?per_page=100&sort=pushed')
     .then(function(r){if(!r.ok)throw 0;return r.json()})
-    .then(function(repos){
-      repos=repos.filter(function(r){return !r.fork&&r.name!==USER&&r.name!==USER+'.github.io'});
-      return Promise.all(repos.map(function(r){return fetch(r.languages_url).then(function(x){return x.json()})}));
+    .then(function(all){
+      var repos=all.filter(function(r){return !r.fork&&r.name!==USER&&r.name!==USER+'.github.io'}).map(function(r){
+        return {name:r.name,url:r.html_url,description:r.description,topics:r.topics||[],language:r.language,lu:r.languages_url};
+      });
+      return Promise.all(repos.map(function(r){return fetch(r.lu).then(function(x){return x.json()}).catch(function(){return {}})})).then(function(ls){
+        var tot={};
+        ls.forEach(function(l){Object.keys(l).forEach(function(k){tot[k]=(tot[k]||0)+l[k]})});
+        return {t:Date.now(),repos:repos,tot:tot};
+      });
     })
-    .then(function(list){
-      var tot={};
-      list.forEach(function(l){Object.keys(l).forEach(function(k){tot[k]=(tot[k]||0)+l[k]})});
-      try{localStorage.setItem('tech2',JSON.stringify({t:Date.now(),d:tot}))}catch(e){}
-      render(tot);
-    })
-    .catch(function(){if(c)render(c.d);else box.textContent='não consegui carregar agora.'});
+    .then(function(d){try{localStorage.setItem('site3',JSON.stringify(d))}catch(e){}apply(d)})
+    .catch(function(){if(c)apply(c);else box.textContent='não consegui carregar agora.'});
 })();
 </script>
 </body>
