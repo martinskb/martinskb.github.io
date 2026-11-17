@@ -212,11 +212,7 @@ footer{padding:40px 0 60px;border-top:1px solid var(--line);font-size:12px;color
 (function(){
   var USER='martinskb',list=document.querySelector('.proj'),car=document.querySelector('.car'),box=document.getElementById('tech-list'),note=document.getElementById('tech-note');
   if(!list||!box)return;
-  var OV={
-    'nexora':{desc:'Controle de vendas e estoque para o pequeno comerciante.',tags:'React · Express · MySQL'},
-    'lume':{desc:'App para criar constância nos estudos: cada tema vira um disco que gira enquanto você foca.',tags:'React · FastAPI · PWA'},
-    'amana':{desc:'Agendamento online para pequenos negócios, instalável no celular como app.',tags:'React · Supabase · PWA'}
-  };
+  var OV={};
   function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
   function card(r){
     var o=OV[r.name]||{},li=el('li'),a=el(r.url?'a':'div',r.url?null:'pc');
