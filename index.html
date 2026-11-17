@@ -145,5 +145,46 @@ footer{padding:40px 0 60px;border-top:1px solid var(--line);font-size:12px;color
   }else{els.forEach(function(e){e.classList.add('on')})}
 })();
 </script>
+<style>
+#roam{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.rm{position:absolute;left:0;top:0;width:46px;opacity:.5;will-change:transform}
+.rm svg{width:46px;height:46px;display:block;filter:drop-shadow(0 0 8px var(--c))}
+.rm span{display:block;margin:2px -24px 0;text-align:center;font-size:10px;color:#7c4a5a;white-space:nowrap}
+.wrap{position:relative;z-index:1}
+</style>
+<script>
+(function(){
+  var src=document.querySelectorAll('#gls .gl');if(!src.length)return;
+  var box=document.createElement('div');box.id='roam';document.body.insertBefore(box,document.body.firstChild);
+  var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var W=innerWidth,H=innerHeight,mx=-999,my=-999,S=46;
+  var items=[].map.call(src,function(li){
+    var el=document.createElement('div');el.className='rm';
+    el.style.setProperty('--c',li.style.getPropertyValue('--c'));
+    el.appendChild(li.querySelector('svg').cloneNode(true));
+    var sp=document.createElement('span');sp.textContent=li.querySelector('span').textContent;el.appendChild(sp);
+    box.appendChild(el);
+    var a=Math.random()*6.283,v=.25+Math.random()*.35;
+    return {el:el,svg:el.firstChild,x:Math.random()*(W-S),y:Math.random()*(H-S-20),vx:Math.cos(a)*v,vy:Math.sin(a)*v,r:Math.random()*360,vr:(Math.random()-.5)*.3};
+  });
+  addEventListener('resize',function(){W=innerWidth;H=innerHeight});
+  addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY});
+  function draw(o){o.el.style.transform='translate('+o.x.toFixed(1)+'px,'+o.y.toFixed(1)+'px)';o.svg.style.transform='rotate('+o.r.toFixed(1)+'deg)'}
+  function tick(){
+    items.forEach(function(o){
+      var dx=o.x+S/2-mx,dy=o.y+S/2-my,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<130&&d>0){o.vx+=dx/d*.06;o.vy+=dy/d*.06}
+      var s=Math.sqrt(o.vx*o.vx+o.vy*o.vy);
+      if(s>.75){o.vx*=.75/s;o.vy*=.75/s}else if(s<.25&&s>0){o.vx*=.25/s;o.vy*=.25/s}
+      o.x+=o.vx;o.y+=o.vy;o.r+=o.vr;
+      if(o.x<0){o.x=0;o.vx=Math.abs(o.vx)}else if(o.x>W-S){o.x=W-S;o.vx=-Math.abs(o.vx)}
+      if(o.y<0){o.y=0;o.vy=Math.abs(o.vy)}else if(o.y>H-S-20){o.y=H-S-20;o.vy=-Math.abs(o.vy)}
+      draw(o);
+    });
+    requestAnimationFrame(tick);
+  }
+  if(reduce){items.forEach(draw)}else{tick()}
+})();
+</script>
 </body>
 </html>
