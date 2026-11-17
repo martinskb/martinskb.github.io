@@ -94,7 +94,6 @@ footer{padding:40px 0 60px;border-top:1px solid var(--line);font-size:12px;color
 <section id="tech" class="rv">
 <h2>[ TECNOLOGIAS ]</h2>
 <div id="tech-list">carregando...</div>
-<p class="hint" id="tech-note"></p>
 </section>
 <ul id="gls" hidden></ul>
 
@@ -249,7 +248,6 @@ footer{padding:40px 0 60px;border-top:1px solid var(--line);font-size:12px;color
     requestAnimationFrame(function(){requestAnimationFrame(function(){
       [].forEach.call(box.querySelectorAll('i'),function(i){i.style.width=i.getAttribute('data-w')+'%'});
     })});
-    note.textContent='projetos e linguagens vêm do GitHub (repositórios públicos) e se atualizam sozinhos.';
   }
   function apply(d){cards(d.repos);render(d.tot)}
   sync();
