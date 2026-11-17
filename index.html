@@ -65,7 +65,7 @@ footer{padding:40px 0 60px;border-top:1px solid var(--line);font-size:12px;color
 </head>
 <body>
 <header class="bar"><div class="wrap"><span class="pl">[ SAVE ROOM ]</span>
-<nav><a href="#projetos">projetos</a><a href="#curto">o que curto</a><a href="#contato">contato</a></nav>
+<nav><a href="#projetos">projetos</a><a href="#tech">tecnologias</a><a href="#contato">contato</a></nav>
 <span class="pl" id="lv">LV. ??</span></div></header>
 
 <main class="wrap">
@@ -83,17 +83,18 @@ footer{padding:40px 0 60px;border-top:1px solid var(--line);font-size:12px;color
 <section id="projetos" class="rv">
 <h2>[ PROJETOS ]</h2>
 <ul class="proj">
-<li><a href="https://github.com/martinskb/nexora"><b>nexora</b><span>Gestão simples de vendas e estoque para o pequeno comerciante.</span><em>React · Express · MySQL</em></a></li>
-<li><a href="https://github.com/martinskb/lume"><b>lume</b><span>Projeto web em HTML, feito pra aprender e testar ideias.</span><em>HTML</em></a></li>
-<li><a href="https://github.com/martinskb"><b>próxima fase</b><span>Tem mais coisa sendo montada. O progresso é salvo no GitHub.</span><em>em construção</em></a></li>
+<li><a href="https://github.com/martinskb/nexora"><b>nexora</b><span>Controle de vendas e estoque para o pequeno comerciante.</span><em>React · Express · MySQL</em></a></li>
+<li><a href="https://github.com/martinskb/lume"><b>lume</b><span>App para criar constância nos estudos: cada tema vira um disco que gira enquanto você foca.</span><em>React · FastAPI · PWA</em></a></li>
+<li><div class="pc"><b>amana</b><span>Agendamento online para pequenos negócios, instalável no celular como app.</span><em>PWA · em desenvolvimento</em></div></li>
 </ul>
 </section>
 
-<section id="curto" class="rv">
-<h2>[ O QUE CURTO ]</h2>
-<ul class="gls" id="gls"></ul>
-<p class="hint">passa o mouse nos símbolos.</p>
+<section id="tech" class="rv">
+<h2>[ TECNOLOGIAS ]</h2>
+<div id="tech-list">carregando...</div>
+<p class="hint" id="tech-note"></p>
 </section>
+<ul id="gls" hidden></ul>
 
 <section id="contato" class="rv">
 <h2>[ CONTATO ]</h2>
@@ -184,6 +185,49 @@ footer{padding:40px 0 60px;border-top:1px solid var(--line);font-size:12px;color
     requestAnimationFrame(tick);
   }
   if(reduce){items.forEach(draw)}else{tick()}
+})();
+</script>
+<style>
+.proj .pc{display:block;height:100%;padding:20px;border:1px dashed var(--line);background:rgba(106,21,48,.05);color:var(--tx)}
+.tr{display:grid;grid-template-columns:120px 1fr 56px;gap:14px;align-items:center;margin:12px 0;font-size:14px}
+.tr b{font-weight:400;color:var(--coral);text-align:right}
+.tk{height:10px;border:1px solid var(--line);background:rgba(106,21,48,.12)}
+.tk i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--w2),var(--coral));box-shadow:0 0 10px rgba(179,41,79,.6);transition:width 1.3s cubic-bezier(.2,.7,.2,1)}
+@media (max-width:480px){.tr{grid-template-columns:90px 1fr 48px;gap:8px}}
+</style>
+<script>
+(function(){
+  var USER='martinskb',box=document.getElementById('tech-list'),note=document.getElementById('tech-note');
+  if(!box)return;
+  function render(tot){
+    var keys=Object.keys(tot).sort(function(a,b){return tot[b]-tot[a]});
+    var sum=keys.reduce(function(s,k){return s+tot[k]},0);
+    if(!sum){box.textContent='sem dados ainda.';return}
+    box.innerHTML=keys.map(function(k){
+      var p=tot[k]/sum*100;
+      return '<div class="tr"><span>'+k+'</span><div class="tk"><i data-w="'+p.toFixed(1)+'"></i></div><b>'+(p<1?'<1':p.toFixed(1))+'%</b></div>';
+    }).join('');
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      [].forEach.call(box.querySelectorAll('i'),function(i){i.style.width=i.getAttribute('data-w')+'%'});
+    })});
+    note.textContent='linguagens dos projetos públicos do GitHub, pela quantidade de código.';
+  }
+  function cached(){try{return JSON.parse(localStorage.getItem('tech2')||'null')}catch(e){return null}}
+  var c=cached();
+  if(c&&Date.now()-c.t<3600000){render(c.d);return}
+  fetch('https://api.github.com/users/'+USER+'/repos?per_page=100')
+    .then(function(r){if(!r.ok)throw 0;return r.json()})
+    .then(function(repos){
+      repos=repos.filter(function(r){return !r.fork&&r.name!==USER&&r.name!==USER+'.github.io'});
+      return Promise.all(repos.map(function(r){return fetch(r.languages_url).then(function(x){return x.json()})}));
+    })
+    .then(function(list){
+      var tot={};
+      list.forEach(function(l){Object.keys(l).forEach(function(k){tot[k]=(tot[k]||0)+l[k]})});
+      try{localStorage.setItem('tech2',JSON.stringify({t:Date.now(),d:tot}))}catch(e){}
+      render(tot);
+    })
+    .catch(function(){if(c)render(c.d);else box.textContent='não consegui carregar agora.'});
 })();
 </script>
 </body>
