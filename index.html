@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>kaio · save room</title>
+<meta name="description" content="Construindo coisas, aprendendo no caminho, salvando progresso.">
+<meta name="theme-color" content="#0a0607">
+<style>
+:root{--bg:#0a0607;--w1:#6a1530;--w2:#8b1a3a;--w3:#b3294f;--coral:#e8704f;--tx:#e8d5da;--mut:#a8808c;--line:#3a1420;
+--mono:ui-monospace,Menlo,Consolas,'DejaVu Sans Mono',monospace}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:var(--mono);line-height:1.6;min-height:100vh;
+background-image:radial-gradient(ellipse at 20% 0%,rgba(139,26,58,.22),transparent 55%),radial-gradient(ellipse at 90% 100%,rgba(106,21,48,.2),transparent 50%)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;
+background:repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 1px,transparent 1px 3px);animation:scan 9s linear infinite}
+@keyframes scan{to{background-position-y:30px}}
+a{color:var(--coral);text-decoration:none}
+a:hover{color:#fff}
+.wrap{max-width:860px;margin:0 auto;padding:0 24px}
+header.bar{position:sticky;top:0;z-index:5;background:rgba(10,6,7,.85);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;justify-content:space-between;align-items:center;height:48px;font-size:13px;letter-spacing:3px;color:var(--w3)}
+.bar nav{display:flex;gap:18px;letter-spacing:1px;font-size:12px}
+.bar nav a{color:var(--mut)}
+.bar nav a:hover{color:var(--coral)}
+.pl{animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.65}50%{opacity:1}}
+.hero{padding:84px 0 64px}
+h1{font-size:clamp(48px,11vw,92px);font-weight:400;color:#f3e4e8;letter-spacing:-2px;text-shadow:0 0 28px rgba(179,41,79,.45)}
+.lines p{font-size:18px;color:#cdb2ba;margin-top:6px;overflow:hidden;white-space:nowrap;width:0;animation:type 1.2s steps(24) forwards}
+.lines p:nth-child(1){animation-delay:.3s}.lines p:nth-child(2){animation-delay:1.5s}.lines p:nth-child(3){animation-delay:2.7s}
+.lines i{font-style:normal;color:var(--w3)}
+@keyframes type{to{width:26ch}}
+.cur{color:var(--coral);animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+button.save{margin-top:34px;background:transparent;color:var(--coral);border:1px solid var(--w2);padding:10px 18px;font:inherit;font-size:14px;letter-spacing:2px;cursor:pointer;transition:.2s}
+button.save:hover{background:var(--w1);color:#fff;box-shadow:0 0 18px rgba(179,41,79,.55)}
+.quote{margin-top:56px;color:var(--mut);font-style:italic;border-left:2px solid var(--w2);padding-left:16px;max-width:560px}
+section{padding:56px 0;border-top:1px solid var(--line)}
+h2{font-size:13px;font-weight:400;letter-spacing:4px;color:var(--w3);margin-bottom:28px}
+.rv{opacity:0;transform:translateY(16px);transition:opacity .7s,transform .7s}
+.rv.on{opacity:1;transform:none}
+.proj{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;list-style:none;padding:0}
+.proj a{display:block;height:100%;padding:20px;border:1px solid var(--line);background:rgba(106,21,48,.08);color:var(--tx);transition:.25s}
+.proj a:hover{border-color:var(--w3);transform:translateY(-4px);box-shadow:0 8px 28px rgba(179,41,79,.28)}
+.proj b{display:block;color:#f3e4e8;font-weight:400;font-size:18px;margin-bottom:6px}
+.proj b::before{content:"> ";color:var(--w3)}
+.proj span{color:var(--mut);font-size:14px}
+.proj em{display:block;margin-top:12px;font-style:normal;font-size:12px;color:var(--w3);letter-spacing:1px}
+ul.gls{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:26px 12px}
+.gl{display:flex;flex-direction:column;align-items:center;gap:10px;animation:float 4s ease-in-out infinite;animation-delay:var(--d)}
+.gl svg{width:64px;height:64px;transition:.25s;filter:drop-shadow(0 0 0 transparent)}
+.gl:hover svg{transform:scale(1.25) rotate(-6deg);filter:drop-shadow(0 0 10px var(--c))}
+.gl span{font-size:12px;color:#7c4a5a;text-align:center;transition:.25s}
+.gl:hover span{color:var(--tx)}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.hint{margin-top:26px;font-size:12px;color:#7c4a5a}
+footer{padding:40px 0 60px;border-top:1px solid var(--line);font-size:12px;color:#7c4a5a;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:var(--w1);border:1px solid var(--w3);color:#fff;padding:12px 20px;font-size:13px;letter-spacing:1px;opacity:0;pointer-events:none;transition:.35s;z-index:9}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*,*::after{animation:none!important;transition:none!important}.lines p{width:26ch}.rv{opacity:1;transform:none}}
+@media (max-width:560px){.bar nav{display:none}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="wrap"><span class="pl">[ SAVE ROOM ]</span>
+<nav><a href="#projetos">projetos</a><a href="#curto">o que curto</a><a href="#contato">contato</a></nav>
+<span class="pl" id="lv">LV. ??</span></div></header>
+
+<main class="wrap">
+<div class="hero">
+<h1>kaio</h1>
+<div class="lines">
+<p><i>&gt;</i> construindo coisas</p>
+<p><i>&gt;</i> aprendendo no caminho</p>
+<p><i>&gt;</i> salvando progresso<span class="cur">_</span></p>
+</div>
+<button class="save" id="save">[ SALVAR PROGRESSO ]</button>
+<blockquote class="quote">Não sei como vou me sentir quando estiver morto, mas não quero me arrepender da maneira como vivi.</blockquote>
+</div>
+
+<section id="projetos" class="rv">
+<h2>[ PROJETOS ]</h2>
+<ul class="proj">
+<li><a href="https://github.com/martinskb/nexora"><b>nexora</b><span>Gestão simples de vendas e estoque para o pequeno comerciante.</span><em>React · Express · MySQL</em></a></li>
+<li><a href="https://github.com/martinskb/lume"><b>lume</b><span>Projeto web em HTML, feito pra aprender e testar ideias.</span><em>HTML</em></a></li>
+<li><a href="https://github.com/martinskb"><b>próxima fase</b><span>Tem mais coisa sendo montada. O progresso é salvo no GitHub.</span><em>em construção</em></a></li>
+</ul>
+</section>
+
+<section id="curto" class="rv">
+<h2>[ O QUE CURTO ]</h2>
+<ul class="gls" id="gls"></ul>
+<p class="hint">passa o mouse nos símbolos.</p>
+</section>
+
+<section id="contato" class="rv">
+<h2>[ CONTATO ]</h2>
+<p>Quer trocar ideia? Me acha no <a href="https://github.com/martinskb">GitHub</a>.</p>
+</section>
+</main>
+
+<div class="wrap"><footer><span>feito em vinho, com pouca luz</span><span id="vis"></span></footer></div>
+<div id="toast" role="status"></div>
+
+<script>
+(function(){
+  var WINE='#b3294f';
+  function spiral(){var p=[];for(var i=0;i<90;i++){var t=i/89,a=t*3.2*Math.PI*2,r=4+t*24;p.push((r*Math.cos(a)).toFixed(1)+','+(r*Math.sin(a)).toFixed(1))}return '<path d="M'+p.join(' L')+'"/>'}
+  var G=[
+   ['Jujutsu Kaisen','#4d7cff',spiral()],
+   ['Resident Evil','#3fbf6f','<circle cx="-14" cy="-14" r="10"/><path d="M-7 -7 L22 22 M12 12 L18 6 M19 19 L25 13"/>'],
+   ['Final Fantasy 7','#2ee6c8','<polygon points="0,-26 19,-8 0,26 -19,-8"/><path d="M-19 -8 L19 -8 M0 -26 L-7 -8 L0 26 M0 -26 L7 -8 L0 26"/>'],
+   ['Persona 5','#f2f2f2','<rect x="-26" y="-18" width="52" height="36" rx="3"/><path transform="translate(0 1) scale(0.55)" d="M0 20 C-32 -2 -16 -26 0 -9 C16 -26 32 -2 0 20Z"/>'],
+   ['Pokémon','#f7d02c','<path d="M7 -27 L-15 4 L-2 4 L-7 27 L15 -6 L2 -6 Z"/>'],
+   ['Black Clover','#9aa0ab','<path d="M0 -14 L0 18 M0 -14 C-10 -20 -22 -18 -29 -14 L-29 16 C-22 12 -10 12 0 18 C10 12 22 12 29 16 L29 -14 C22 -18 10 -20 0 -14Z"/>'],
+   ['Solo Leveling','#9b6bff','<path d="M-20 4 L0 -16 L20 4 M-20 22 L0 2 L20 22"/>'],
+   ['Jurassic Park','#f28c28','<ellipse cx="0" cy="14" rx="12" ry="10"/><ellipse cx="-17" cy="-4" rx="5" ry="10"/><ellipse cx="0" cy="-12" rx="5" ry="11"/><ellipse cx="17" cy="-4" rx="5" ry="10"/>'],
+   ['Star Wars','#8fd3ff','<circle r="13"/><ellipse rx="28" ry="8" transform="rotate(-20)"/><circle cx="-24" cy="-20" r="1.6" fill="currentColor"/><circle cx="22" cy="-22" r="1.6" fill="currentColor"/><circle cx="24" cy="20" r="1.6" fill="currentColor"/>']
+  ];
+  var common='stroke-linecap="round" stroke-linejoin="round" fill="none"';
+  document.getElementById('gls').innerHTML=G.map(function(g,i){
+    return '<li class="gl" style="--d:'+(-(i+1)*0.7).toFixed(1)+'s;--c:'+g[1]+'"><svg viewBox="-34 -34 68 68" aria-hidden="true">'+
+    '<g stroke="'+g[1]+'" color="'+g[1]+'" stroke-width="2.4" '+common+'>'+g[2]+'</g>'+
+    '<g stroke="'+WINE+'" color="'+WINE+'" stroke-width="1" opacity=".55" '+common+'>'+g[2]+'</g></svg><span>'+g[0]+'</span></li>';
+  }).join('');
+  var toast=document.getElementById('toast'),t;
+  function say(m){toast.textContent=m;toast.classList.add('on');clearTimeout(t);t=setTimeout(function(){toast.classList.remove('on')},2400)}
+  var n=0;
+  try{n=parseInt(localStorage.getItem('saves')||'0',10)||0}catch(e){}
+  document.getElementById('save').addEventListener('click',function(){
+    n++;try{localStorage.setItem('saves',String(n))}catch(e){}
+    say('progresso salvo · slot '+String(n).padStart(2,'0'));
+  });
+  if(n>0)document.getElementById('vis').textContent='saves neste navegador: '+n;
+  fetch('https://raw.githubusercontent.com/martinskb/martinskb/main/assets/banner.svg')
+    .then(function(r){return r.text()})
+    .then(function(s){var m=s.match(/LV\.\s*(\d+)/);if(m)document.getElementById('lv').textContent='LV. '+m[1]})
+    .catch(function(){});
+  var els=document.querySelectorAll('.rv');
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target)}})},{threshold:.15});
+    els.forEach(function(e){io.observe(e)});
+  }else{els.forEach(function(e){e.classList.add('on')})}
+})();
+</script>
+</body>
+</html>
